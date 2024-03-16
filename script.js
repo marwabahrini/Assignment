@@ -1,7 +1,6 @@
-
-    $(document).ready(function(){
+$(document).ready(function(){
     $('#generateBtn').click(function(){
-        const token = 'marwaToken'; // define the token here
+        var token = 'marwaToken'; // define the token here
 
         $.ajax({
             url: 'http://localhost:8000/api.php', // API endpoint
@@ -23,4 +22,3 @@
         });
     });
 });
-

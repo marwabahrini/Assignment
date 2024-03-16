@@ -19,15 +19,34 @@ if ($_SERVER['REQUEST_METHOD'] === 'POST') {
 
     // check if action is set to get_random_number
     if (isset($data['action']) && $data['action'] === 'get_random_number') {
-        // Include random.php to access its functions
-        include 'random.php';
+        // initialize cURL session
+        $ch = curl_init();
 
-        // generate a random number
-        $random_number = generate_random_number();
+        // set the cURL options
+        curl_setopt($ch, CURLOPT_URL, 'http://localhost/random.php'); // URL of random.php
+        curl_setopt($ch, CURLOPT_RETURNTRANSFER, true); // return response as string
+        curl_setopt($ch, CURLOPT_POST, true); // set as POST request
+        curl_setopt($ch, CURLOPT_POSTFIELDS, json_encode($data)); // set POST data
+        curl_setopt($ch, CURLOPT_HTTPHEADER, array(
+            'Content-Type: application/json',
+            'Authorization: Bearer ' . $expected_token // include the token in header
+        ));
 
-        // send response back to JavaScript
-        header('Content-Type: application/json');
-        echo json_encode(array('number' => $random_number));
+        // execute cURL session
+        $response = curl_exec($ch);
+
+        // check for cURL errors
+        if(curl_errno($ch)){
+            http_response_code(500); // internal server error
+            echo json_encode(array('error' => curl_error($ch)));
+            exit;
+        }
+
+        // close cURL session
+        curl_close($ch);
+
+        // output response from random.php
+        echo $response;
         exit; // added to stop further execution
     }
 }
